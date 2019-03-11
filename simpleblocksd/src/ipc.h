@@ -1,13 +1,13 @@
 //
 //  ipc.h
-//  storage
+//  simpleblocksd
 //
 //  Created by David Harris on 02/15/2019.
 //  Copyright (c) 2019 MegaApps. All rights reserved.
 //
 
-#ifndef storage_ipc_h
-#define storage_ipc_h
+#ifndef simpleblocksd_ipc_h
+#define simpleblocksd_ipc_h
 
 #ifdef __cplusplus
 extern "C" {
@@ -53,27 +53,27 @@ typedef	struct shmb		shmb_t;
 
 
 /*	Shared Memory data type	*/
-struct shm_s
+struct ipc_s
 {
-	sem_t	page_sem;
-	int		sem_fd;
-	mup_t	*page;
+	sem_t	*mup_sem;
+	int		mup_sem_fd;
+	mup_t	*mup;
 
-	sem_t	block_sem;
+	sem_t	*block_sem;
+	int		block_sem_fd;
 	shmb_t	*block;
 };
-typedef	struct shm_s		shm_t;
+typedef	struct ipc_s		ipc_t;
 
 
 /*	Declarations	*/
-extern struct shm_t		g_shm;
 
 
 /* Prototypes	*/
-void ipc_init(void);
-void ipc_destroy(void);
+void ipc_init(ipc_t *ctx);
+void ipc_destroy(ipc_t *ctx);
 
-void ipc_get_work(void);
+void ipc_get_work(ipc_t *ctx);
 
 
 
