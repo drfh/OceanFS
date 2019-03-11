@@ -1,6 +1,6 @@
 //
 //  storage.c
-//  libpeers
+//  simpleblocksd
 //
 //  Created by David Harris on 12/20/2018.
 //  Copyright (c) 2018 MegaApps. All rights reserved.

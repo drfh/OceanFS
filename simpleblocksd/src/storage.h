@@ -1,13 +1,13 @@
 //
 //  storage.h
-//  libpeers
+//  simpleblocks
 //
 //  Created by David Harris on 12/20/2018.
 //  Copyright (c) 2018 MegaApps. All rights reserved.
 //
 
-#ifndef libpeers_storage_h
-#define libpeers_storage_h
+#ifndef simpleblocksd_storage_h
+#define simpleblocksd_storage_h
 
 #ifdef __cplusplus
 extern "C" {
