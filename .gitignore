@@ -81,5 +81,6 @@ Thumbs.db
 build/*
 _build/*
 scratch/*
+_scratch/*
 Makefile.*
 Dockerfile.*
