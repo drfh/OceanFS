@@ -31,6 +31,7 @@
 /** Prototypes **/
 void init_globals(void);
 void init_signals(void);
+void signal_handler(int signum);
 
 void alocate_file(const char* path,size_t size);
 void parse_args(int argc,char const *argv[]);
@@ -59,10 +60,21 @@ void init_globals(void)
 
 void init_signals(void)
 {
-	sigact.sa_handler = signal_handler;
-	sigemptyset(&sigact.sa_mask);
-	sigact.sa_flags = 0;
-	sigaction(SIGINT, &sigact, (struct sigaction *)NULL);
+	signal(SIGINT,signal_handler);
+	signal(SIGHUP,signal_handler);
+	signal(SIGTERM,signal_handler);
+}
+
+void signal_handler(int signum)
+{
+	printf("Caught signal %d\n",signum);
+	if(signum==SIGINT)
+	{
+		if(g.done==true)
+			exit(-1);
+		g.done=true;
+		fprintf("enter ^C again to exit(-1)\n");
+	}
 }
 
 int main(int argc,char const **argv)
