@@ -5,13 +5,46 @@
 
 # Compiled source #
 ###################
+# Prerequisites
+*.d
+
+# Object files
+*.o
+*.ko
+*.obj
+*.elf
+
+# Linker output
+*.ilk
+*.map
+*.exp
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Libraries
+*.lib
+*.a
+*.la
+*.lo
+*.dll
+
+# Shared objects (inc. Windows DLLs)
+*.dll
+*.so
+*.so.*
+*.dylib
 *.com
 *.class
-*.dll
+
+# Executables
 *.exe
-*.o
-*.so
-#.a
+*.out
+*.app
+*.i*86
+*.x86_64
+*.hex
 
 # Packages #
 ############

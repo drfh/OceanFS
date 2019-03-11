@@ -6,3 +6,5 @@ add_subdirectory(blocksd)
 add_subdirectory(salt)
 
 add_subdirectory(oceanfs)
+
+add_subdirectory(test)
