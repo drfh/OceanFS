@@ -82,6 +82,7 @@ int main(int argc,char const **argv)
 	stor_t		*d;
 	char*		name=malloc(128);
 	int			return_val=0;
+	ipc_t		ctx;
 
 	fprintf(stderr,"-----------------\n");
 	fprintf(stderr,"simpleblocksd - v0.1\n");
@@ -91,6 +92,9 @@ int main(int argc,char const **argv)
 	init_globals();
 	fprintf(stderr,"Parse args...\n");
 	parse_args(argc,(const char **)argv);
+
+	/*	Create IPC communication context	*/
+	ipc_init(&ctx);
 
 	/*	Check to see if file exists	*/
 	if(access(g.disk_dir,F_OK)==-1)
@@ -113,12 +117,20 @@ int main(int argc,char const **argv)
 		return_val=2;
 	}
 
+	shmb_t	*block=ctx.block;
+
 	while(!g.done)
 	{
 		sched_yield();
-		if(ipc_get_work()==true)
+		if(ipc_get_work(&ctx)==true)
 		{
-		//	ipc_block_ref();
+			printf("Block(%d)-> Message type: %d\n",ctx->block_epoc,block->head->type);
+			if(block->head->type==100)
+			{
+				printf();
+			}
+
+			sem_post(ctx->block_sem);
 		}
 		sleep(1);
 	}

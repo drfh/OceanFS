@@ -55,13 +55,15 @@ typedef	struct shmb		shmb_t;
 /*	Shared Memory data type	*/
 struct ipc_s
 {
-	sem_t	*mup_sem;
-	int		mup_sem_fd;
-	mup_t	*mup;
+	sem_t		*mup_sem;
+	uint32_t	mup_epoc;
+	int			mup_sem_fd;
+	mup_t		*mup;
 
-	sem_t	*block_sem;
-	int		block_sem_fd;
-	shmb_t	*block;
+	sem_t		*block_sem;
+	uint32_t	block_epoc;
+	int			block_sem_fd;
+	shmb_t		*block;
 };
 typedef	struct ipc_s		ipc_t;
 

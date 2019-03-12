@@ -11,7 +11,7 @@
 
 #define SHM_SIZE		1024
 #define SHM_BLOCK_SIZE	1024000
-#define	MUP_SHM_NAME	"simpleblocksd"
+#define	IPC_NAME		"simpleblocksd"
 #define	SEM_MUP_NAME	"simpleblocksd.sem"
 
 
@@ -22,6 +22,10 @@ void mup_add_(ipc_t *ctx,pid_t pid);
 void remove_from_mup(ipc_t *ctx);
 void remove_from_mup_(ipc_t *ctx,pid_t pid);
 
+/*	Internal		*/
+void internal_setup_mup(mup_t *mup);
+void internal_setup_block(shmb_t *block);
+
 
 void ipc_init(ipc_t *ctx)
 {
@@ -29,7 +33,8 @@ void ipc_init(ipc_t *ctx)
 	int		opts;
 	char	file_name[64];
 
-	ctx->mup_sem=sem_open(SEM_MUP_NAME,O_CREAT,0644,0);
+	sprintf(file_name,"%s.sem",IPC_NAME,pid());
+	ctx->mup_sem=sem_open(IPC_NAME,O_CREAT,0644,0);
 	if(ctx->mup_sem==(void*)-1)
 	{
 		perror("sem_open failure");
@@ -38,10 +43,42 @@ void ipc_init(ipc_t *ctx)
 	mode=S_IRUSR|S_IWUSR;
 	opts=O_CREAT|O_RDWR|O_TRUNC;
 	fprintf(stderr,"mode: %d   opts: %d\n",mode);
-	sprintf(file_name,"%s",MUP_SHM_NAME);
-	ctx->mup=allocate_shm_map(file_name,mode,opts,sizeof(ctx));
+	sprintf(file_name,"%s",IPC_NAME);
+	ctx->mup=allocate_shm_map(file_name,mode,opts,sizeof(ctx->mup));
 	internal_setup_mup(ctx->mup);
+	ctx->mup_epoc=1;
+
+	sprintf(file_name,"%s.%d.sem",IPC_NAME,pid());
+	ctx->block_sem=sem_open(file_name,O_CREAT,0644,0);
+	if(ctx->block_sem==(void*)-1)
+	{
+		perror("sem_open failure");
+		exit();
+	}
+	mode=S_IRUSR|S_IWUSR;
+	opts=O_CREAT|O_RDWR|O_TRUNC;
+	fprintf(stderr,"mode: %d   opts: %d\n",mode);
+	sprintf(file_name,"%s.%d",IPC_NAME,pid());
+	ctx->block=allocate_shm_map(file_name,mode,opts,sizeof(ctx->block));
+	internal_setup_mup(ctx->block);
+	ctx->block_epoc=1;
 }
+
+void internal_setup_mup(mup_t *mup)
+{
+	;
+}
+
+void internal_setup_block(shmb_t *block)
+{
+	block->epoc=0;
+	block->head->type=0;
+	block->head->size=0;
+	block->head->hash={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+	block->data=malloc(kMB(1));
+	block->data=zmem(block->data,kMB(1));
+}
+
 
 void* ipc_shm_mmap(const char* name,int mode,int opts,int fd,long size)
 {
@@ -141,11 +178,13 @@ void mup_remove_(ipc_t *ctx,pid_t pid)
 
 bool ipc_get_work(ipc_t *ctx)
 {
-	sem_wait(ctx->block_sem);
-
-	if(ctx->block_epoc!=ctx->block->epoc)
+	if(sem_trywait(ctx->block_sem)!=0)
 	{
-		;
+		if(ctx->block_epoc!=ctx->block->epoc)
+		{
+			;
+		}
 	}
-	sem_post(ctx->block_sem);
+	else
+		fprintf(stderr,"Errno=%d\n",errno);
 }
