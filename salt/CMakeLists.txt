@@ -5,7 +5,7 @@ project(salt)
 
 
 
-set(sources "src/main.c" )
+set(${sources} "src/main.c" )
 
 add_executable(salt ${sources})
 target_link_libraries(salt libpeers)

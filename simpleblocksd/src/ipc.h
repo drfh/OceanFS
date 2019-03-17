@@ -15,14 +15,27 @@ extern "C" {
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdio.h>
 
 #include <sys/types.h>
 
 #include <sys/ipc.h>
 #include <sys/shm.h>
-#include <stdio.h>
+
+#include <semaphore.h>
+
+/*	Defines		*/
+#define	IPC_VERSION_CURRENT		1
 
 
+enum
+{
+	eEmpty=0,
+	eStatus=1,
+	eBlockRead,
+	eBlockWrite,
+	eBlockStatus,
+}head_t;
 
 /* Structs and data types	*/
 /*	Meet Up Page	~1k page*/
@@ -35,10 +48,11 @@ struct mup
 };
 typedef	struct mup		mup_t;
 
-
 /*	Shared Memory Block	*/
 struct shmb
 {
+	uint32_t	version;
+	char		uuid[32];
 	uint32_t	epoc;
 	struct
 	{
@@ -75,7 +89,7 @@ typedef	struct ipc_s		ipc_t;
 void ipc_init(ipc_t *ctx);
 void ipc_destroy(ipc_t *ctx);
 
-void ipc_get_work(ipc_t *ctx);
+bool ipc_get_work(ipc_t *ctx);
 
 
 

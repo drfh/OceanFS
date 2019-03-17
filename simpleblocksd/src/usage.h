@@ -11,13 +11,13 @@
 
 void usage(void)
 {
-    printf("How to use the program\n");
-    printf("--verbose\n");
-    printf("--help\n");
-    printf("--cache\n");
-    printf("--drive\n");
-    printf("--block-size\n");
-    printf("\n");
+	printf("How to use the program\n");
+	printf("--verbose\n");
+	printf("--help\n");
+	printf("--cache\n");
+	printf("--drive\n");
+	printf("--block-size\n");
+	printf("\n");
 
-    printf("\n");
+	printf("\n");
 }

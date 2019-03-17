@@ -33,8 +33,9 @@ extern "C" {
 
 #define		kVersion	"0.0.1"
 
-
-
+#ifndef global
+	extern struct	global		g;
+#endif
 
 #ifdef __cplusplus
 }

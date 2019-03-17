@@ -2,7 +2,7 @@
 2010-06-11 : Igor Pavlov : Public domain
 This code is based on public domain code from Wei Dai's Crypto++ library. */
 
-#include "rotate-bits/rotate-bits.h"
+#include "rotate-bits.h"
 #include "sha256.h"
 
 /* define it for speed optimization */

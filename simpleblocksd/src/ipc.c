@@ -1,11 +1,16 @@
 #include <stdlib.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/mman.h>
 #include <sysexits.h>
 #include <sys/types.h>
+#include <errno.h>
 
+#include <string.h>
+
+#include "global.h"
 #include "ipc.h"
 
 
@@ -15,12 +20,12 @@
 #define	SEM_MUP_NAME	"simpleblocksd.sem"
 
 
-void* ipc_mmap_alloc(const char* name,int mode,int opts,int fd,long size);
+char* ipc_mmap_alloc(const char* name,int mode,int opts,int fd,long size);
 
 void mup_add(ipc_t *ctx);
 void mup_add_(ipc_t *ctx,pid_t pid);
-void remove_from_mup(ipc_t *ctx);
-void remove_from_mup_(ipc_t *ctx,pid_t pid);
+void mup_remove(ipc_t *ctx);
+void mup_remove_(ipc_t *ctx,pid_t pid);
 
 /*	Internal		*/
 void internal_setup_mup(mup_t *mup);
@@ -33,34 +38,35 @@ void ipc_init(ipc_t *ctx)
 	int		opts;
 	char	file_name[64];
 
-	sprintf(file_name,"%s.sem",IPC_NAME,pid());
+	sprintf(file_name,"%s.sem",IPC_NAME,getpid());
 	ctx->mup_sem=sem_open(IPC_NAME,O_CREAT,0644,0);
 	if(ctx->mup_sem==(void*)-1)
 	{
 		perror("sem_open failure");
-		exit();
+		exit(-2);
 	}
 	mode=S_IRUSR|S_IWUSR;
 	opts=O_CREAT|O_RDWR|O_TRUNC;
 	fprintf(stderr,"mode: %d   opts: %d\n",mode);
 	sprintf(file_name,"%s",IPC_NAME);
-	ctx->mup=allocate_shm_map(file_name,mode,opts,sizeof(ctx->mup));
+//	ctx->mup=ipc_shm_mmap(file_name,mode,opts,sizeof(ctx->mup));
 	internal_setup_mup(ctx->mup);
 	ctx->mup_epoc=1;
 
-	sprintf(file_name,"%s.%d.sem",IPC_NAME,pid());
+	sprintf(file_name,"%s.%d.sem",IPC_NAME,getpid());
 	ctx->block_sem=sem_open(file_name,O_CREAT,0644,0);
 	if(ctx->block_sem==(void*)-1)
 	{
 		perror("sem_open failure");
-		exit();
+		exit(-2);
 	}
 	mode=S_IRUSR|S_IWUSR;
 	opts=O_CREAT|O_RDWR|O_TRUNC;
 	fprintf(stderr,"mode: %d   opts: %d\n",mode);
-	sprintf(file_name,"%s.%d",IPC_NAME,pid());
-	ctx->block=allocate_shm_map(file_name,mode,opts,sizeof(ctx->block));
-	internal_setup_mup(ctx->block);
+	sprintf(file_name,"%s.%d",IPC_NAME,getpid());
+//	ctx->block=ipc_shm_mmap(file_name,mode,opts,sizeof(ctx->block));
+	ctx->block=malloc(sizeof(ctx->block));
+	internal_setup_block(ctx->block);
 	ctx->block_epoc=1;
 }
 
@@ -71,16 +77,19 @@ void internal_setup_mup(mup_t *mup)
 
 void internal_setup_block(shmb_t *block)
 {
+	fprintf(stderr,"internal_setup_block: %p\n",block);
+	block->version=IPC_VERSION_CURRENT;
+//	block->uuid=NULL;//{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 	block->epoc=0;
-	block->head->type=0;
-	block->head->size=0;
-	block->head->hash={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+	block->head.type=0;
+	block->head.size=0;
+//	block->head.hash=NULL;//{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 	block->data=malloc(kMB(1));
-	block->data=zmem(block->data,kMB(1));
+	memset(block->data,0x00,kMB(1));
 }
 
 
-void* ipc_shm_mmap(const char* name,int mode,int opts,int fd,long size)
+char* ipc_shm_mmap(const char* name,int mode,int opts,int fd,long size)
 {
 	void*		map_buff=NULL;
 //	int			fd;
@@ -102,13 +111,15 @@ void* ipc_shm_mmap(const char* name,int mode,int opts,int fd,long size)
 		 exit(EX_IOERR);
 	}
 	mlock(map_buff,size);
-	fprintf(stderr,"allocate_shm_mmap() @ %p of size %d\n",record,size);
+	fprintf(stderr,"allocate_shm_mmap() @ %p of size %d\n",map_buff,size);
 	return map_buff;
 }
 
 void ipc_destroy(ipc_t *ctx)
 {
-	remove_from_mup();
+	char	file_name[64];
+
+	mup_remove(ctx);
 	munlock(ctx->mup->pids,MAX_PIDS);
 	if(munmap(ctx->mup->pids,MAX_PIDS)!=0)
 	{
@@ -117,17 +128,15 @@ void ipc_destroy(ipc_t *ctx)
 	}
 	else
 	{
-		char	file_name[64];
-
-		sprintf(file_name,"%s",SHM_NAME);
+		sprintf(file_name,"%s",IPC_NAME);
 		shm_unlink(file_name);
-		close(sem_fd);
+		close(ctx->mup_sem_fd);
 	}
-	sem_close(page_sem);
+	sem_close(ctx->mup_sem);
 	sem_unlink(SEM_MUP_NAME);
 
 
-	sprintf(file_name,"%s_%d",SHM_NAME,pid());
+	sprintf(file_name,"%s_%d",IPC_NAME,getpid());
 	shm_unlink(file_name);
 
 
@@ -135,19 +144,19 @@ void ipc_destroy(ipc_t *ctx)
 
 void mup_add(ipc_t *ctx)
 {
-	mup_add_(ctx,pid());
+	mup_add_(ctx,getpid());
 }
 
 void mup_add_(ipc_t *ctx,pid_t pid)
 {
 	int		i;
 
-	if(ctx->page!=NULL)
+	if(ctx->mup!=NULL)
 	for(i=0;i<MAX_PIDS;i++)
 	{
 		if(ctx->mup->pids[i]==0)
 		{
-			ctx->mup->pids[i]=pid();
+			ctx->mup->pids[i]=getpid();
 			break;
 		}
 	}
@@ -155,7 +164,7 @@ void mup_add_(ipc_t *ctx,pid_t pid)
 
 void mup_remove(ipc_t *ctx)
 {
-	mup_remove_(ctx,pid());
+	mup_remove_(ctx,getpid());
 }
 
 void mup_remove_(ipc_t *ctx,pid_t pid)
@@ -173,18 +182,25 @@ void mup_remove_(ipc_t *ctx,pid_t pid)
 			break;
 		}
 	}
-	sem_post(ctx.mup_sem);
+	sem_post(ctx->mup_sem);
 }
 
 bool ipc_get_work(ipc_t *ctx)
 {
-	if(sem_trywait(ctx->block_sem)!=0)
+	int		result;
+
+	if((result=sem_trywait(ctx->block_sem))==0)
 	{
 		if(ctx->block_epoc!=ctx->block->epoc)
 		{
-			;
+			fprintf(stderr,"ctx->block_epoc = %d\n",ctx->block_epoc);
 		}
+		return true;
 	}
 	else
+	{
+		fprintf(stderr,"sem_trywait=%d\n",result);
 		fprintf(stderr,"Errno=%d\n",errno);
+	}
+	return false;
 }

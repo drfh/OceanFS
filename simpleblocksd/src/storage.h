@@ -56,13 +56,24 @@ struct stor_s
 	FILE*			dev;
 
 	u_int32_t		p_count;
-	pool_t**		pools;
+//	pool_t**		pools;
+	char**			pools;
 
 	u_int32_t		b_count;
-	block_t**		blocks;
+//	block_t**		blocks;
+	char**			blocks;
 };
 typedef	struct stor_s	stor_t;
 
+/**
+ * Allocate and initialize a stor_t instance.
+ * @param domain	(default: AF_INET)
+ * @param type		(default: SOCK_DGRAM)
+ * @param protocol	(default: 0)
+ * @return			A new arraylist, or NULL if it was not possible
+ *
+ * @see stor_init
+ */
 stor_t*	stor_init(const char* dir);
 
 /**
@@ -74,6 +85,15 @@ stor_t*	stor_init(const char* dir);
  */
 void stor_free(stor_t *s);
 
+/**
+ * Allocate and initialize a stor_t instance from a directory.
+ * @param dir		(default: AF_INET)
+ * @param type		(default: SOCK_DGRAM)
+ * @param protocol	(default: 0)
+ * @return			A new arraylist, or NULL if it was not possible
+ *
+ * @see stor_init
+ */
 stor_t*	stor_load(const char* dir);
 
 

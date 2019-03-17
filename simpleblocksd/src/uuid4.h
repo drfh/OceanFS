@@ -23,6 +23,7 @@ enum {
 typedef	char*	uuid_t;
 
 int uuid4_generate(char *dst);
+int uuid4_print(char *dst);
 
 
 
