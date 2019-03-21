@@ -22,6 +22,7 @@ extern "C" {
 #include <sys/socket.h>
 #include <sys/un.h>
 
+#include "blocks.h"
 #include "uuid4.h"
 
 
