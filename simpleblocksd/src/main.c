@@ -31,8 +31,9 @@
 #include "usage.h"
 
 /** Defines **/
-#define	kSLEEP_TICKS_DEFAULT	100000
-#define	kSLEEP_TICKS_SLOW		1000000
+#define	kSLEEP_TICKS_DEFAULT	1000*10*1
+#define	kSLEEP_TICKS_SLOW		10000*10*1
+#define	kATUOEXIT_TIME			2
 
 /** Prototypes **/
 void init_globals(void);
@@ -130,11 +131,19 @@ int main(int argc,char const **argv)
 
 	shmb_t		*block=ctx.block;
 	uint32_t	sleep_ticks=kSLEEP_TICKS_DEFAULT;
+#ifdef kATUOEXIT_TIME
+	time_t		start_t,end_t;
+	time(&start_t);
+#endif
 
 	while(!g.done)
 	{
 		sched_yield();
 		if(ipc_get_work(&ctx)==true)
+#ifdef kATUOEXIT_TIME
+		time(&end_t);
+		g.done=!(difftime(end_t,start_t)<kATUOEXIT_TIME);
+#endif
 		{
 			printf("Block epoc(%0.8x)-> Message type: %0.2x\n",ctx.block_epoc,block->head.type);
 			if(block->head.type==0)
