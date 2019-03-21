@@ -22,6 +22,7 @@ extern "C" {
 #include <sys/socket.h>
 #include <sys/un.h>
 
+#include "blocks.h"
 #include "uuid4.h"
 
 
@@ -36,13 +37,6 @@ struct pool_s
 	uuid_t		parent_uuid;
 
 	uuid_t		root;	/* Pool's ROOT block */
-};
-
-
-typedef	struct block_s	block_t;
-struct block_s
-{
-	block_t*		next;
 };
 
 
