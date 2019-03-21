@@ -73,14 +73,14 @@ void init_signals(void)
 
 void signal_handler(int signum)
 {
-	printf("Caught signal %d\n",signum);
+	printf("\nCaught signal %d\n",signum);
 //	||signum==SIGHUP||signum==SIGTERM
 	if(signum==SIGINT)
 	{
 		if(g.done==true)
 			exit(-1);
 		g.done=true;
-		fprintf(stderr,"enter ^C again to exit(-1)\n");
+		fprintf(stderr,"enter ^C again to FORCE EXIT(-1)\n");
 	}
 }
 
