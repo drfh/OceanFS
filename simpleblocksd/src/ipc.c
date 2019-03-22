@@ -206,22 +206,22 @@ void mup_remove_(ipc_t *ctx,pid_t pid)
 	sem_post(ctx->mup_sem);
 }
 
-bool ipc_get_work(ipc_t *ctx)
-{
-	int		result;
-
-	if((result=sem_trywait(ctx->block_sem))==0)
-	{
-		if(ctx->block_epoc!=ctx->block->epoc)
-		{
-			fprintf(stderr,"ctx->block_epoc = %d\n",ctx->block_epoc);
-		}
-		return true;
-	}
-	else
-	{
-		fprintf(stderr,"sem_trywait=%d\n",result);
-		fprintf(stderr,"Errno=%d\n",errno);
-	}
-	return false;
-}
+// bool ipc_get_work(ipc_t *ctx)
+// {
+// 	int		result;
+//
+// 	if((result=sem_trywait(ctx->block_sem))==0)
+// 	{
+// 		if(ctx->block_epoc!=ctx->block->epoc)
+// 		{
+// 			fprintf(stderr,"ctx->block_epoc = %d\n",ctx->block_epoc);
+// 		}
+// 		return true;
+// 	}
+// 	else
+// 	{
+// 		fprintf(stderr,"sem_trywait=%d\n",result);
+// 		fprintf(stderr,"Errno=%d\n",errno);
+// 	}
+// 	return false;
+// }
