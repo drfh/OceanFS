@@ -27,15 +27,14 @@ extern "C" {
 /*	Defines		*/
 #define	IPC_VERSION_CURRENT		1
 
+#define	eEmpty			0
+#define	eAdmin			100
+#define	eStatus			1
+#define	eDiskStatus		2
+#define	eBlockRead		3
+#define	eBlockWrite		4
+#define	eBlockStatus	5
 
-enum
-{
-	eEmpty=0,
-	eStatus=1,
-	eBlockRead,
-	eBlockWrite,
-	eBlockStatus,
-}head_t;
 
 /* Structs and data types	*/
 /*	Meet Up Page	~1k page*/
@@ -71,12 +70,12 @@ struct ipc_s
 {
 	sem_t		*mup_sem;
 	uint32_t	mup_epoc;
-	int			mup_sem_fd;
+	int			mup_shm_fd;
 	mup_t		*mup;
 
 	sem_t		*block_sem;
 	uint32_t	block_epoc;
-	int			block_sem_fd;
+	int			block_shm_fd;
 	shmb_t		*block;
 };
 typedef	struct ipc_s		ipc_t;
@@ -89,7 +88,7 @@ typedef	struct ipc_s		ipc_t;
 void ipc_init(ipc_t *ctx);
 void ipc_destroy(ipc_t *ctx);
 
-bool ipc_get_work(ipc_t *ctx);
+// bool ipc_get_work(ipc_t *ctx);
 
 
 
