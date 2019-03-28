@@ -1,6 +1,6 @@
 //
 //  log.c
-//  simpleblocksd
+//  salt
 //
 //  Created by David Harris on 3/11/2019.
 //  Copyright (c) 2018 MegaApps. All rights reserved.

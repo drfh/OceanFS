@@ -31,8 +31,6 @@ extern "C" {
 #define		k64KB		kKB64
 
 
-#define		kVersion	"0.0.1"
-
 #ifndef global
 	extern struct	global		g;
 #endif
