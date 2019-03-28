@@ -1,3 +1,11 @@
+//
+//  ipc.h
+//  simpleblocksd
+//
+//  Created by David Harris on 02/15/2019.
+//  Copyright (c) 2019 MegaApps. All rights reserved.
+//
+
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdio.h>
