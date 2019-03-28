@@ -34,7 +34,7 @@
 /** Defines **/
 #define	kSLEEP_TICKS_DEFAULT	1000*10*1
 #define	kSLEEP_TICKS_SLOW		10000*10*1
-#define	kATUOEXIT_TIME			2
+#define	kATUOEXIT_TIME			5
 
 /** Prototypes **/
 void init_globals(void);
