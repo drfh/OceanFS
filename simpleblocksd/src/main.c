@@ -98,6 +98,7 @@ int main(int argc,char const **argv)
 	fprintf(stderr,"-----------------\n");
 
 	/*	Setup program globals	*/
+	init_signals();
 	init_globals();
 	fprintf(stderr,"Parse args...\n");
 	parse_args(argc,(const char **)argv);
