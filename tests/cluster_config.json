@@ -1,0 +1,14 @@
+{
+	"cluster": "5F1FD3A9A4814D38B7C2BFD3C4B46F10",
+	"number": 123,
+	"persona": {
+		"name": "admin",
+		"UUID": "02CF8D52C0A64487ADE82F1AA2272C93"
+	},
+	"cert": null,
+	"ip_hints": [
+		"10.10.0.101:9909",
+		"10.10.0.102:9909",
+		"10.10.0.103:9909"
+	]
+}
