@@ -1,6 +1,8 @@
 [submodule "lib/uuid4"]
 	path = lib/uuid4
 	url = https://github.com/drfh/uuid4.git
-[submodule "lib/libpeers"]
+	branch = master
+[submodule "libpeers"]
 	path = lib/libpeers
-	url = https://github.com/drfh/libpeers.git
+	url = git@github.com:drfh/libpeers.git
+	branch = master
