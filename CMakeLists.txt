@@ -10,12 +10,12 @@ set(CMAKE_BUILD_TYPE "Debug")
 set(CMAKE_PROJECT_DESCRIPTION "")
 set(CMAKE_PROJECT_HOMEPAGE_URL "https://www.github.com/DRFH/OceanFS")
 
-set(CMAKE_C_FLAGS "")
-set(CMAKE_CXX_FLAGS "")
+# set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -pedantic -Wextra")
+# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pedantic -Wextra")
 
 
 #if(EXISTS "libpeer")
-	add_subdirectory(util)
+	add_subdirectory(lib)
 	#add_library(utils MODULE util)
 #endif(EXISTS "libpeer")
 
