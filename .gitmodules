@@ -1,6 +1,6 @@
 [submodule "lib/uuid4"]
 	path = lib/uuid4
-	url = https://github.com/rxi/uuid4.git
+	url = https://github.com/drfh/uuid4.git
 [submodule "lib/libpeers"]
 	path = lib/libpeers
 	url = https://github.com/drfh/libpeers.git
