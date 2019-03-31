@@ -41,6 +41,8 @@ extern "C" {
 #define	MAX_PIDS		250
 struct mup
 {
+	uint8_t		version;
+	uint8_t		mup_expanse;
 	uint32_t	epoc;
 	uint32_t	pids_count;
 	pid_t		pids[MAX_PIDS];
