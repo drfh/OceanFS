@@ -86,9 +86,6 @@ void internal_setup_mup(mup_t *mup)
 {
 	int		i=0;
 
-	fprintf(stderr,"epoc: %d\n",mup->epoc);
-	if(mup->pids_count==0)
-		mup->pids_count++;
 	if(mup->version==0)
 	{
 		mup->version=1;
@@ -97,7 +94,6 @@ void internal_setup_mup(mup_t *mup)
 			mup->epoc=1;
 	}
 	mup_add(mup);
-	fprintf(stderr,"epoc: %d\n",mup->epoc);
 }
 
 void internal_setup_block(shmb_t *block)
