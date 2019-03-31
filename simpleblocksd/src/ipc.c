@@ -6,16 +6,16 @@
 //  Copyright (c) 2019 MegaApps. All rights reserved.
 //
 
-#include <stdlib.h>
+//#include <stdio.h>
 #include <stdbool.h>
-#include <stdio.h>
+//#include <stdlib.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/mman.h>
 #include <sysexits.h>
-#include <sys/types.h>
 #include <errno.h>
 #include <assert.h>
+#include <signal.h>
 
 #include <string.h>
 
@@ -29,7 +29,7 @@
 #define	SEM_MUP_NAME	"simpleblocksd.sem"
 
 
-char* ipc_mmap_alloc(const char* name,int mode,int opts,int fd,long size);
+char* ipc_mmap_alloc(const char* name,int mode,int opts,int *fd,long size);
 
 void mup_add(mup_t *mup);
 void mup_add_(mup_t *mup,pid_t pid);
@@ -46,35 +46,38 @@ void ipc_init(ipc_t *ctx,const char* ipc_name)
 	int		mode;
 	int		opts;
 	char	file_name[64];
+	char	pid_str[16];
+	int		str_len;
 
-	sprintf(file_name,"%s.sem",IPC_NAME,getpid());
-	ctx->mup_sem=sem_open(IPC_NAME,O_CREAT,0644,0);
-	if(ctx->mup_sem==(void*)-1)
-	{
-		perror("sem_open failure");
-		exit(-2);
-	}
-	mode=S_IRUSR|S_IWUSR;
-	opts=O_CREAT|O_RDWR|O_TRUNC;
-	fprintf(stderr,"mode: %d   opts: %d\n",mode);
-	sprintf(file_name,"%s",IPC_NAME);
-//	ctx->mup=ipc_shm_mmap(file_name,mode,opts,sizeof(ctx->mup));
+	bzero(file_name,64);
+	str_len=strlen(ipc_name)+1;
+	assert(str_len<250);
+	ctx->ipc_name=malloc(str_len);
+	strcpy(ctx->ipc_name,ipc_name);
+	//	Setup MUP shared memory
+	sprintf(file_name,"%s",ipc_name);
+	ctx->mup_sem=sem_open(file_name,O_CREAT|O_RDWR,S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP,0);
+	assert(ctx->mup_sem!=SEM_FAILED);
+	sem_post(ctx->mup_sem);
+
+	mode=S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP;
+	opts=O_CREAT|O_RDWR;
+	ctx->mup=(mup_t*)ipc_mmap_alloc(file_name,mode,opts,&ctx->mup_shm_fd,sizeof(mup_t));
+	sem_wait(ctx->mup_sem);
 	internal_setup_mup(ctx->mup);
+	sem_post(ctx->mup_sem);
 	ctx->mup_epoc=1;
 
-	sprintf(file_name,"%s.%d.sem",IPC_NAME,getpid());
-	ctx->block_sem=sem_open(file_name,O_CREAT,0644,0);
-	if(ctx->block_sem==(void*)-1)
-	{
-		perror("sem_open failure");
-		exit(-2);
-	}
-	mode=S_IRUSR|S_IWUSR;
-	opts=O_CREAT|O_RDWR|O_TRUNC;
-	fprintf(stderr,"mode: %d   opts: %d\n",mode);
-	sprintf(file_name,"%s.%d",IPC_NAME,getpid());
-//	ctx->block=ipc_shm_mmap(file_name,mode,opts,sizeof(ctx->block));
-	ctx->block=malloc(sizeof(ctx->block));
+	//	Setup BLOCK shared memory
+	sprintf(file_name,"%s.%d",ipc_name,getpid());
+	ctx->block_sem=sem_open(file_name,O_CREAT|O_RDWR,S_IRUSR|S_IWUSR,1);
+	assert(ctx->block_sem!=SEM_FAILED);
+	sem_post(ctx->block_sem);
+
+//	mode=S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP;
+//	opts=O_CREAT|O_RDWR|O_TRUNC;
+	sprintf(file_name,"%s.shm.%d",ipc_name,getpid());
+	ctx->block=(shmb_t*)ipc_mmap_alloc(file_name,mode,opts,&ctx->block_shm_fd,sizeof(struct shmb)+kMB(1));
 	internal_setup_block(ctx->block);
 	ctx->block_epoc=1;
 }
