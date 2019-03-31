@@ -25,9 +25,9 @@
 
 #include <signal.h>
 
-#include "global.h"
+#include <global.h>
+#include <uuid4.h>
 #include "ipc.h"
-#include "uuid4.h"
 #include "storage.h"
 #include "usage.h"
 

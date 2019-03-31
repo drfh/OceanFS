@@ -1,6 +1,6 @@
 //
 //  global.h
-//  libpeers
+//  oceanfs_util
 //
 //  Created by David Harris on 11/16/18.
 //  Copyright (c) 2011 MegaApps. All rights reserved.

@@ -21,9 +21,10 @@
 #include <sched.h>
 #include <signal.h>
 
-#include "log.h"
-#include "base64.h"
-#include "md5.h"
+#include <global.h>
+#include <log.h>
+#include <base64.h>
+#include <md5.h>
 // #include "sha265.h"
 
 #include "config.h"

@@ -7,5 +7,7 @@ include(GNUInstallDirs)
 # Third-party
 add_subdirectory(uuid4)
 
+
+# My libraries
 add_subdirectory(util)
-add_subdirectory(libpeers)
+# add_subdirectory(libpeers)

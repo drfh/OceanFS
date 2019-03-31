@@ -22,8 +22,8 @@ extern "C" {
 #include <sys/socket.h>
 #include <sys/un.h>
 
+#include <uuid4.h>
 #include "blocks.h"
-#include "uuid4.h"
 
 
 #define kPOOL_NAME_LEN		128
