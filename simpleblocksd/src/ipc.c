@@ -6,9 +6,7 @@
 //  Copyright (c) 2019 MegaApps. All rights reserved.
 //
 
-//#include <stdio.h>
 #include <stdbool.h>
-//#include <stdlib.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/mman.h>
@@ -23,12 +21,11 @@
 #include "ipc.h"
 
 
-#define SHM_SIZE		1024
+/** Defines **/
 #define SHM_BLOCK_SIZE	1024000
-#define	IPC_NAME		"simpleblocksd"
-#define	SEM_MUP_NAME	"simpleblocksd.sem"
 
 
+/** Protoypes **/
 char* ipc_mmap_alloc(const char* name,int mode,int opts,int *fd,long size);
 
 void mup_add(mup_t *mup);
