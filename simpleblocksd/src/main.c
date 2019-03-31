@@ -170,7 +170,7 @@ int main(int argc,char const **argv)
 	fprintf(stderr,"Cleanup...\n");
 	fprintf(stderr,"Freeing cache...\n");
 
-	fprintf(stderr,"Closing desk...\n");
+	fprintf(stderr,"Closing disk...\n");
 //	stor_free(d);
 	fprintf(stderr,"Closing IPC...\n");
 	ipc_destroy(&ctx);
