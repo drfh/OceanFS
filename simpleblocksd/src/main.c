@@ -106,7 +106,7 @@ int main(int argc,char const **argv)
 
 	/*	Create IPC communication context	*/
 	fprintf(stderr,"Setup IPC...\n");
-	ipc_init(&ctx);
+	ipc_init(&ctx,"simpleblocksd");
 
 	/*	Check to see if file exists	*/
 	fprintf(stderr,"Create disk...\n");
