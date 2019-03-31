@@ -1,5 +1,5 @@
 //
-//  ipc.h
+//  ipc.c
 //  simpleblocksd
 //
 //  Created by David Harris on 02/15/2019.
@@ -15,6 +15,7 @@
 #include <sysexits.h>
 #include <sys/types.h>
 #include <errno.h>
+#include <assert.h>
 
 #include <string.h>
 
@@ -40,7 +41,7 @@ void internal_setup_mup(mup_t *mup);
 void internal_setup_block(shmb_t *block);
 
 
-void ipc_init(ipc_t *ctx)
+void ipc_init(ipc_t *ctx,const char* ipc_name)
 {
 	int		mode;
 	int		opts;

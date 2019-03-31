@@ -68,6 +68,8 @@ typedef	struct shmb		shmb_t;
 /*	Shared Memory data type	*/
 struct ipc_s
 {
+	char		*ipc_name;
+
 	sem_t		*mup_sem;
 	uint32_t	mup_epoc;
 	int			mup_shm_fd;
@@ -85,7 +87,7 @@ typedef	struct ipc_s		ipc_t;
 
 
 /* Prototypes	*/
-void ipc_init(ipc_t *ctx);
+void ipc_init(ipc_t *ctx,const char* ipc_name);
 void ipc_destroy(ipc_t *ctx);
 
 // bool ipc_get_work(ipc_t *ctx);
