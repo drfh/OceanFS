@@ -315,6 +315,8 @@ void insert_file(stor_t *disk,char* data_pool,char* file_path)
 	size_t		size=0;
 	size_t		offset=0;
 
+	UNUSED(disk);
+	UNUSED(data_pool);
 	/*	Open the file for reading	*/
 	if((f=fopen(file_path,"r"))==NULL)
 	{
