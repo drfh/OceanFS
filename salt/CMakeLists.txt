@@ -3,7 +3,6 @@ project(salt)
 
 
 set(sources "src/main.c")
-set(sources ${sources} "src/ipc.c")
 #set(sources ${sources} "src/blocks.c")
 #set(sources ${sources} "src/storage.c")
 #set(sources ${sources} "src/spacemap.c")
