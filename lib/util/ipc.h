@@ -1,13 +1,13 @@
 //
 //  ipc.h
-//  simpleblocksd
+//  util
 //
 //  Created by David Harris on 02/15/2019.
 //  Copyright (c) 2019 MegaApps. All rights reserved.
 //
 
-#ifndef simpleblocksd_ipc_h
-#define simpleblocksd_ipc_h
+#ifndef util_ipc_h
+#define util_ipc_h
 
 #ifdef __cplusplus
 extern "C" {
