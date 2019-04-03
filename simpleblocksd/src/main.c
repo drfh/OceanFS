@@ -6,28 +6,30 @@
 //  Copyright (c) 2019 MegaApps. All rights reserved.
 //
 
+//	standard headers
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <unistd.h>
 #include <string.h>
 #include <time.h>
-
+#include <getopt.h>
+#include <errno.h>
+#include <sched.h>
+#include <signal.h>
+#include <sysexits.h>
+//	system headers
 #include <sys/types.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
 
-#include <getopt.h>
-#include <errno.h>
-#include <sysexits.h>
-#include <sched.h>
-#include <unistd.h>
-
-#include <signal.h>
-
+//	lib/util
 #include <global.h>
+#include <ipc.h>
+//	lib/uuid4
 #include <uuid4.h>
-#include "ipc.h"
+//	local headers
 #include "storage.h"
 #include "usage.h"
 #include "version.h"
