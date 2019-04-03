@@ -95,7 +95,7 @@ void internal_setup_mup(mup_t *mup)
 
 void internal_setup_block(shmb_t *block)
 {
-	fprintf(stderr,"internal_setup_block: %p\n",block);
+	fprintf(stderr,"internal_setup_block: %p\n",(void*)block);
 	block->version=IPC_VERSION_CURRENT;
 //	block->uuid=NULL;//{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 	block->epoc=0;
