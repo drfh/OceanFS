@@ -196,23 +196,26 @@ void mup_remove(ipc_t *ctx)
 
 void mup_remove_(ipc_t *ctx,pid_t pid)
 {
-	int		i;
+	mup_t	*mup=ctx->mup;
 
 	assert(sem_wait(ctx->mup_sem)==0);
-	
-	if(ctx->mup!=NULL)
-	for(i=0;i<MAX_PIDS;i++)
+	if(mup!=NULL)
 	{
-		if(ctx->mup->pids[i]==pid)
-		{
-			ctx->mup->pids[i]=0;
-			ctx->mup->pids_count--;
-			if(ctx->mup->epoc<2000000000)
-				ctx->mup->epoc++;
-			else
-				ctx->mup->epoc=0;
+		bool	exit=false;
+		int		i;
 
-			break;
+		for(i=0;i<MAX_PIDS&&exit==false;i++)
+		{
+			if(mup->pids[i]==pid)
+			{
+				mup->pids[i]=0;
+				mup->pids_count--;
+				if(mup->epoc<2000000000)
+					mup->epoc++;
+				else
+					mup->epoc=0;
+				exit=true;
+			}
 		}
 	}
 	sem_post(ctx->mup_sem);
