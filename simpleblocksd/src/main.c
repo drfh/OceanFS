@@ -30,6 +30,7 @@
 #include "ipc.h"
 #include "storage.h"
 #include "usage.h"
+#include "version.h"
 
 /** Defines **/
 #define	kSLEEP_TICKS_DEFAULT	1000*10*1
@@ -94,7 +95,7 @@ int main(int argc,char const **argv)
 	ipc_t		ctx;
 
 	fprintf(stderr,"-----------------\n");
-	fprintf(stderr,"simpleblocksd - v0.1\n");
+	fprintf(stderr,"simpleblocksd - v%s\n",VERSION_STRING);
 	fprintf(stderr,"-----------------\n");
 
 	/*	Setup program globals	*/

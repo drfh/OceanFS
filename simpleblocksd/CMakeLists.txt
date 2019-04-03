@@ -2,6 +2,13 @@ cmake_minimum_required(VERSION 3.7)
 project(simpleblocksd)
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+set(MAJOR 0)
+set(MINOR 1)
+set(MAINTENANCE 25)
+set(VERSION_STRING "${MAJOR}.${MINOR}.${MAINTENANCE}")
+
+configure_file("${PROJECT_SOURCE_DIR}/version.h.in" "${PROJECT_BINARY_DIR}/version.h")
+include_directories("${PROJECT_BINARY_DIR}")
 
 set(sources "src/main.c")
 set(sources ${sources} "src/ipc.c")
