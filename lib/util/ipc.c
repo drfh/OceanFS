@@ -7,15 +7,15 @@
 //
 
 #include <stdbool.h>
+#include <string.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include <sys/mman.h>
-#include <sysexits.h>
 #include <errno.h>
 #include <assert.h>
 #include <signal.h>
 
-#include <string.h>
+#include <sysexits.h>
+#include <sys/mman.h>
 
 #include "global.h"
 #include "ipc.h"
@@ -43,7 +43,6 @@ void ipc_init(ipc_t *ctx,const char* ipc_name)
 	int		mode;
 	int		opts;
 	char	file_name[64];
-	char	pid_str[16];
 	int		str_len;
 
 	bzero(file_name,64);
@@ -81,8 +80,6 @@ void ipc_init(ipc_t *ctx,const char* ipc_name)
 
 void internal_setup_mup(mup_t *mup)
 {
-	int		i=0;
-
 	if(mup->version==0)
 	{
 		mup->version=1;
@@ -106,30 +103,28 @@ void internal_setup_block(shmb_t *block)
 	memset(block->data,0x00,kMB(1));
 }
 
-
-char* ipc_shm_mmap(const char* name,int mode,int opts,int fd,long size)
+char* ipc_mmap_alloc(const char* name,int mode,int opts,int *fd,long size)
 {
 	void*		map_buff=NULL;
-//	int			fd;
 
-	if((fd=shm_open(name,opts,mode))==-1)
+	if((*fd=shm_open(name,opts,mode))==-1)
 	{
 		perror("shm_open");
 		return NULL;
 	}
-	if(ftruncate(fd,size)==-1)
+	if(ftruncate(*fd,size)==-1)
 	{
 		fprintf(stderr,"Could not allocate the shared memory space.\n");
 		return NULL;
 	}
-	map_buff=mmap(NULL,size,PROT_READ|PROT_WRITE,MAP_SHARED,fd,0);
+	map_buff=mmap(NULL,size,PROT_READ|PROT_WRITE,MAP_SHARED,*fd,0);
 	if(map_buff==MAP_FAILED)
 	{
 		 perror("Couldn't mmap");
 		 exit(EX_IOERR);
 	}
 	mlock(map_buff,size);
-	fprintf(stderr,"allocate_shm_mmap() @ %p of size %d\n",map_buff,size);
+//	fprintf(stderr,"ipc_shm_mmap(%s) @ %p of size %d\n",name,map_buff,size);
 	return map_buff;
 }
 
@@ -138,26 +133,27 @@ void ipc_destroy(ipc_t *ctx)
 	char	file_name[64];
 
 	mup_remove(ctx);
-	munlock(ctx->mup->pids,MAX_PIDS);
-	if(munmap(ctx->mup->pids,MAX_PIDS)!=0)
+	munlock(ctx->mup,sizeof(mup_t));
+	if(munmap(ctx->mup,sizeof(mup_t))!=0)
 	{
 		fprintf(stderr,"shmdt returned non-zero.\n");
 		exit(EX_DATAERR);
 	}
 	else
 	{
-		sprintf(file_name,"%s",IPC_NAME);
-		shm_unlink(file_name);
-		close(ctx->mup_sem_fd);
+		sprintf(file_name,"%s",ctx->ipc_name);
+	//	shm_unlink(file_name);
+	//	close(ctx->mup_shm_fd);
 	}
 	sem_close(ctx->mup_sem);
-	sem_unlink(SEM_MUP_NAME);
+	sprintf(file_name,"%s",ctx->ipc_name);
+	sem_unlink(file_name);
+//	shm_unlink(file_name);
 
-
-	sprintf(file_name,"%s_%d",IPC_NAME,getpid());
+	sprintf(file_name,"%s.%d",ctx->ipc_name,getpid());
+	sem_unlink(file_name);
+	sprintf(file_name,"%s.shm.%d",ctx->ipc_name,getpid());
 	shm_unlink(file_name);
-
-
 }
 
 void mup_add(mup_t *mup)
@@ -165,18 +161,20 @@ void mup_add(mup_t *mup)
 	mup_add_(mup,getpid());
 }
 
-void mup_add_(ipc_t *ctx,pid_t pid)
 void mup_add_(mup_t *mup,pid_t pid)
 {
 	int		i;
 	bool	exit=false;
 
+	errno=0;
 	if(mup!=NULL)
 	for(i=0;i<MAX_PIDS&&!exit;i++)
 	{
+		if(mup->pids[i]!=0)
+			if(kill(mup->pids[i],0)==-1&&errno==ESRCH)
+				mup->pids[i]=0;
 		if(mup->pids[i]==0)
 		{
-			break;
 			mup->pids[i]=pid;
 			mup->pids_count++;
 			if(mup->epoc<2000000000)
