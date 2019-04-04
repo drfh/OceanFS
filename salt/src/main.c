@@ -29,7 +29,7 @@
 
 #include "config.h"
 #include "parse.h"
-#include "ipc.h"
+#include <ipc.h>
 #include "usage.h"
 
 #define	__BUILD_VERSION__	26
@@ -106,15 +106,15 @@ void signal_handler(int signum)
 void print_version(void)
 {
 	fprintf(stdout,"-----------------\n");
-	fprintf(stderr,"salt - v0.2   build: %0.4x\n",__BUILD_VERSION__);
+	fprintf(stderr,"salt - v0.2   build: %04x\n",__BUILD_VERSION__);
 	fprintf(stderr,"-----------------\n");
 }
 
 int main(int argc,char const **argv)
 {
 	int			return_val=0;
-	ipc_t		ctx;
-	char		*path;
+	// ipc_t		ctx;
+	// uint8_t		*path;
 	char		*test_str;
 	char		*b64_str;
 
@@ -128,10 +128,10 @@ int main(int argc,char const **argv)
 	b64_str=malloc(strlen(kDEFAULT_CONFIG));
 	strcpy(test_str,kDEFAULT_CONFIG);
 //	sprintf(test_str,"Hello to all and others.");
-	b64_str=b64_encode(test_str,strlen(test_str));
-	printf("base256(%d): %s\n",strlen(test_str),test_str);
+	b64_str=b64_encode((uint8_t*)test_str,strlen(test_str));
+	printf("base256(%zu): %s\n",strlen(test_str),test_str);
 	// printf("Compressed(%d): \n",);
-	printf("base64(%d): %s\n",strlen(b64_str),b64_str);
+	printf("base64(%zu): %s\n",strlen(b64_str),b64_str);
 
 	if(g.done==false&&g.action!=NULL)
 	{
@@ -164,7 +164,7 @@ int main(int argc,char const **argv)
 		}
 		else
 		{
-			printf("unknown action=> '%s' %x %d\n",g.action,g.action,g.action);
+			printf("unknown action=> '%s' %p %zd\n",g.action,g.action,strlen(g.action));
 		}
 	}
 	return return_val;
@@ -228,7 +228,7 @@ void parse_args(int argc,char const *argv[])
 //				printf("The size of the disk requested: %s\n",optarg);
 				break;
 			case '?':
-				printf("?? getopt returned character code 0%o %c %d??\n", c);
+				printf("?? getopt returned character code %o %c %d??\n",c,c,c);
 				break;
 			case 'v':
 				if(g.verbose!=-1)
