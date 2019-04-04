@@ -112,59 +112,105 @@ int main(int argc,char const **argv)
 	ipc_init(&ctx,"simpleblocksd");
 
 	/*	Check to see if file exists	*/
-	fprintf(stderr,"Create disk...\n");
-	if(access(g.disk_dir,F_OK)==-1)
-	{
-		if(g.create==true)
-		{
-//			alocate_file(g.disk_dir,g.size);
-		}
-		else
-		{
-			fprintf(stderr,"File not found: %s\n",g.disk_dir);
-			fprintf(stderr,"-c --create flag not set.\n");
-			return_val=1;
-		}
-	}
-
-	d=load_disk_path(g.disk_dir,g.create);
-	if(d==NULL)
-	{
-		fprintf(stderr,"Can't open directory!\n");
-		return_val=2;
-	}
-
+// 	fprintf(stderr,"Create disk...\n");
+// 	if(access(g.disk_dir,F_OK)==-1)
+// 	{
+// 		if(g.create==true)
+// 		{
+// //			alocate_file(g.disk_dir,g.size);
+// 		}
+// 		else
+// 		{
+// 			fprintf(stderr,"File not found: %s\n",g.disk_dir);
+// 			fprintf(stderr,"-c --create flag not set.\n");
+// 			return_val=1;
+// 		}
+// 	}
+//
+// 	d=load_disk_path(g.disk_dir,g.create);
+// 	if(d==NULL)
+// 	{
+// 		fprintf(stderr,"Can't open directory!\n");
+// 		return_val=2;
+// 	}
+// errno=0;
 	shmb_t		*block=ctx.block;
 	uint32_t	sleep_ticks=kSLEEP_TICKS_DEFAULT;
+	int			result=0;
+
 #ifdef kATUOEXIT_TIME
 	time_t		start_t,end_t;
 	time(&start_t);
 #endif
 
+	fprintf(stderr,"-----------------\n");
+	fprintf(stderr,"Ready...\n");
 	while(!g.done)
 	{
+		errno=0;
 		sched_yield();
-		if(ipc_get_work(&ctx)==true)
 #ifdef kATUOEXIT_TIME
 		time(&end_t);
 		g.done=!(difftime(end_t,start_t)<kATUOEXIT_TIME);
 #endif
+		result=sem_trywait(ctx.block_sem);
+		if(result==0)
 		{
-			printf("Block epoc(%0.8x)-> Message type: %0.2x\n",ctx.block_epoc,block->head.type);
-			if(block->head.type==0)
+			if(ctx.block_epoc!=block->epoc)
 			{
-//				fprintf(stderr,"Empty header\n");
-				sleep_ticks=kSLEEP_TICKS_SLOW;
-			}
-			else if(block->head.type==100)
-			{
-				sleep_ticks=kSLEEP_TICKS_DEFAULT;
-				printf("");
-			}
+				if(block->head.type==eEmpty)
+				{
+					fprintf(stderr,"Empty header\n");
+					sleep_ticks=kSLEEP_TICKS_SLOW;
+				}
+				else if(block->head.type==eStatus)
+				{
+					sleep_ticks=kSLEEP_TICKS_DEFAULT;
+					// fprintf(stderr,"block->type=%d\n",block->head.type);
+					fprintf(stderr,"eStatus\n");
+				}
+				else if(block->head.type==eDiskStatus)
+				{
+					sleep_ticks=kSLEEP_TICKS_DEFAULT;
+					// fprintf(stderr,"block->type=%d\n",block->head.type);
+					fprintf(stderr,"eDiskStatus\n");
+				}
+				else if(block->head.type==eBlockRead)
+				{
+					sleep_ticks=kSLEEP_TICKS_DEFAULT;
+					// fprintf(stderr,"block->type=%d\n",block->head.type);
+					fprintf(stderr,"eBlockRead\n");
+				}
+				else if(block->head.type==eBlockWrite)
+				{
+					sleep_ticks=kSLEEP_TICKS_DEFAULT;
+					// fprintf(stderr,"block->type=%d\n",block->head.type);
+					fprintf(stderr,"eBlockWrite\n");
+				}
+				else if(block->head.type==eBlockStatus)
+				{
+					sleep_ticks=kSLEEP_TICKS_DEFAULT;
+					// fprintf(stderr,"block->type=%d\n",block->head.type);
+					fprintf(stderr,"eBlockStatus\n");
+				}
+				else if(block->head.type==eAdmin)
+				{
+					// fprintf(stderr,"block->head.type = !valid\n");
+					fprintf(stderr,"eAdmin\n");
+					g.done=true;
+				}
+				else
+					printf("Block epoc(%08x)-> Message type: %02x\n",ctx.block_epoc,block->head.type);
 
-//			ipc_work_close(&ctx);
+				ctx.block_epoc=block->epoc;
+			}
+			sem_post(ctx.block_sem);
 		}
-		sem_post(ctx.block_sem);
+		else
+		{
+			fprintf(stderr,"result: %d  Errno=%d \"%s\"\n",result,errno,strerror(errno));
+			sleep_ticks=kSLEEP_TICKS_SLOW;
+		}
 		usleep(sleep_ticks);
 	}
 
